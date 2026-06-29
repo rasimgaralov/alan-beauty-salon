@@ -9,69 +9,51 @@ window.scrollTo(0, 0);
 
 // ============ VIDEO INTRO ============
 (function() {
-  const overlay = document.getElementById('introOverlay');
-  const introDesk = document.getElementById('introVideoDesk');
-  const introMob = document.getElementById('introVideoMob');
   const heroDesk = document.getElementById('heroVideoDesk');
   const heroMob = document.getElementById('heroVideoMob');
+  const skipBtn = document.getElementById('introSkipBtn');
 
   const isMobile = window.innerWidth <= 768;
-  const activeIntro = isMobile ? introMob : introDesk;
   const activeHero = isMobile ? heroMob : heroDesk;
 
-  // Lock body scroll during intro
+  // Lock body scroll and UI during intro
   document.body.classList.add('intro-active');
 
-  // Seek hero video to end so last frame is ready
-  function seekHeroToEnd() {
-    if (activeHero.readyState >= 1 && activeHero.duration) {
-      activeHero.currentTime = activeHero.duration - 0.05;
-    } else {
-      activeHero.addEventListener('loadedmetadata', () => {
-        activeHero.currentTime = activeHero.duration - 0.05;
-      }, { once: true });
-    }
-  }
-
+  let finished = false;
   function finishIntro() {
-    // Seek hero video to last frame
-    seekHeroToEnd();
-
-    // Fade out overlay
-    overlay.classList.add('done');
-    setTimeout(() => {
-      document.body.classList.add('hero-ready');
-    }, 200);
-
-    // Unlock body after transition
-    setTimeout(() => {
-      document.body.classList.remove('intro-active');
-      overlay.style.display = 'none';
-    }, 900);
+    if (finished) return;
+    finished = true;
+    if (activeHero) {
+      try { activeHero.pause(); } catch(e) {}
+    }
+    if (skipBtn) {
+      skipBtn.style.opacity = '0';
+      skipBtn.style.pointerEvents = 'none';
+      setTimeout(() => { skipBtn.style.display = 'none'; }, 400);
+    }
+    document.body.classList.add('hero-ready');
+    document.body.classList.remove('intro-active');
   }
 
-  // When intro video ends, transition to hero
-  activeIntro.addEventListener('ended', finishIntro, { once: true });
+  if (activeHero) {
+    activeHero.addEventListener('ended', finishIntro, { once: true });
+    activeHero.play().catch(() => {
+      finishIntro();
+    });
+  } else {
+    finishIntro();
+  }
 
-  // Skip button click handler
-  const skipBtn = document.getElementById('introSkipBtn');
   if (skipBtn) {
     skipBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      try { activeIntro.pause(); } catch(err) {}
       finishIntro();
     });
   }
 
-  // Play the intro video
-  activeIntro.play().catch(() => {
-    // Autoplay blocked — skip intro immediately
-    finishIntro();
-  });
-
-  // Safety fallback: if video takes too long, skip after 15s
+  // Safety fallback after 15s
   setTimeout(() => {
-    if (!overlay.classList.contains('done')) {
+    if (!finished) {
       finishIntro();
     }
   }, 15000);

@@ -29,7 +29,8 @@
 }
 
 html {
-  scroll-behavior: smooth
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -284,39 +285,9 @@ body.intro-active .nav-pill {
   transition: var(--transition);
 }
 
-/* VIDEO INTRO OVERLAY */
-.intro-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 1;
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-  pointer-events: all
-}
-
-.intro-overlay.done {
-  opacity: 0;
-  pointer-events: none
-}
-
-.intro-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  position: absolute;
-  inset: 0
-}
-
-.intro-video--mob {
-  display: none
-}
-
+/* VIDEO INTRO SKIP BUTTON */
 .intro-skip-btn {
-  position: absolute;
+  position: fixed;
   bottom: 36px;
   right: 36px;
   z-index: 10000;
@@ -380,16 +351,6 @@ html[dir="rtl"] .intro-skip-btn:hover i {
   }
 }
 
-@media(max-width:768px) {
-  .intro-video--desk {
-    display: none
-  }
-
-  .intro-video--mob {
-    display: block
-  }
-}
-
 /* Body locked during intro */
 body.intro-active {
   overflow: hidden
@@ -415,8 +376,12 @@ body.intro-active .whatsapp-float {
 
 .hero-bg {
   position: absolute;
-  inset: 0;
-  z-index: 0
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 0;
 }
 
 .hero-bg img {
