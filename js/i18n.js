@@ -140,11 +140,9 @@ const translations = {
     "footer.contact": "Contact",
     "footer.copyright": "© 2026 Alan Beauty Salon. All rights reserved.",
     "footer.powered": "Powered by Land Of Fire Enterprisess",
-    "intro.skip": "Skip Intro",
   },
 
   ar: {
-    "intro.skip": "تخطي",
     // Navbar
     "nav.home": "الرئيسية",
     "nav.about": "من نحن",

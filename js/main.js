@@ -11,7 +11,6 @@ window.scrollTo(0, 0);
 (function() {
   const heroDesk = document.getElementById('heroVideoDesk');
   const heroMob = document.getElementById('heroVideoMob');
-  const skipBtn = document.getElementById('introSkipBtn');
 
   const isMobile = window.innerWidth <= 768;
   const activeHero = isMobile ? heroMob : heroDesk;
@@ -26,11 +25,6 @@ window.scrollTo(0, 0);
     if (activeHero) {
       try { activeHero.pause(); } catch(e) {}
     }
-    if (skipBtn) {
-      skipBtn.style.opacity = '0';
-      skipBtn.style.pointerEvents = 'none';
-      setTimeout(() => { skipBtn.style.display = 'none'; }, 400);
-    }
     document.body.classList.add('hero-ready');
     document.body.classList.remove('intro-active');
   }
@@ -42,13 +36,6 @@ window.scrollTo(0, 0);
     });
   } else {
     finishIntro();
-  }
-
-  if (skipBtn) {
-    skipBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      finishIntro();
-    });
   }
 
   // Safety fallback after 15s

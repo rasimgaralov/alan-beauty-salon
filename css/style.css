@@ -285,71 +285,7 @@ body.intro-active .nav-pill {
   transition: var(--transition);
 }
 
-/* VIDEO INTRO SKIP BUTTON */
-.intro-skip-btn {
-  position: fixed;
-  bottom: 36px;
-  right: 36px;
-  z-index: 10000;
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(44, 36, 24, 0.45);
-  backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(184, 148, 63, 0.6);
-  color: #fff;
-  padding: 10px 22px;
-  border-radius: 30px;
-  font-family: var(--font-body);
-  font-size: 0.78rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
 
-.intro-skip-btn:hover {
-  background: var(--gold);
-  border-color: var(--gold);
-  color: #fff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(184, 148, 63, 0.4);
-}
-
-.intro-skip-btn i {
-  font-size: 0.75rem;
-  transition: transform 0.3s ease;
-}
-
-.intro-skip-btn:hover i {
-  transform: translateX(3px);
-}
-
-html[dir="rtl"] .intro-skip-btn {
-  right: auto;
-  left: 36px;
-  flex-direction: row-reverse;
-}
-
-html[dir="rtl"] .intro-skip-btn:hover i {
-  transform: translateX(-3px);
-}
-
-@media(max-width:768px) {
-  .intro-skip-btn {
-    bottom: 24px;
-    right: 24px;
-    padding: 8px 18px;
-    font-size: 0.72rem;
-  }
-
-  html[dir="rtl"] .intro-skip-btn {
-    right: auto;
-    left: 24px;
-  }
-}
 
 /* Body locked during intro */
 body.intro-active {
