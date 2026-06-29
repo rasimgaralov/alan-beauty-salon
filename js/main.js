@@ -1,36 +1,149 @@
+// ============ SCROLL TO TOP ON RELOAD ============
+window.addEventListener('beforeunload', () => {
+  window.scrollTo(0, 0);
+});
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
+// ============ VIDEO INTRO ============
+(function() {
+  const overlay = document.getElementById('introOverlay');
+  const introDesk = document.getElementById('introVideoDesk');
+  const introMob = document.getElementById('introVideoMob');
+  const heroDesk = document.getElementById('heroVideoDesk');
+  const heroMob = document.getElementById('heroVideoMob');
+
+  const isMobile = window.innerWidth <= 768;
+  const activeIntro = isMobile ? introMob : introDesk;
+  const activeHero = isMobile ? heroMob : heroDesk;
+
+  // Lock body scroll during intro
+  document.body.classList.add('intro-active');
+
+  // Seek hero video to end so last frame is ready
+  function seekHeroToEnd() {
+    if (activeHero.readyState >= 1 && activeHero.duration) {
+      activeHero.currentTime = activeHero.duration - 0.05;
+    } else {
+      activeHero.addEventListener('loadedmetadata', () => {
+        activeHero.currentTime = activeHero.duration - 0.05;
+      }, { once: true });
+    }
+  }
+
+  function finishIntro() {
+    // Seek hero video to last frame
+    seekHeroToEnd();
+
+    // Fade out overlay
+    overlay.classList.add('done');
+    setTimeout(() => {
+      document.body.classList.add('hero-ready');
+    }, 200);
+
+    // Unlock body after transition
+    setTimeout(() => {
+      document.body.classList.remove('intro-active');
+      overlay.style.display = 'none';
+    }, 900);
+  }
+
+  // When intro video ends, transition to hero
+  activeIntro.addEventListener('ended', finishIntro, { once: true });
+
+  // Skip button click handler
+  const skipBtn = document.getElementById('introSkipBtn');
+  if (skipBtn) {
+    skipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      try { activeIntro.pause(); } catch(err) {}
+      finishIntro();
+    });
+  }
+
+  // Play the intro video
+  activeIntro.play().catch(() => {
+    // Autoplay blocked — skip intro immediately
+    finishIntro();
+  });
+
+  // Safety fallback: if video takes too long, skip after 15s
+  setTimeout(() => {
+    if (!overlay.classList.contains('done')) {
+      finishIntro();
+    }
+  }, 15000);
+})();
+
 // ============ NAVBAR SCROLL ============
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
   navbar.classList.toggle('scrolled', window.scrollY > 60);
 });
 
-// ============ SERVICE TABS ============
-const svcTabs = document.querySelectorAll('.svc-tab');
-const svcItems = document.querySelectorAll('.svc-item');
+// ============ SERVICE ACCORDION & MAIN TABS ============
+const svcMainTabs = document.querySelectorAll('.svc-main-tab');
+const svcAccordionItems = document.querySelectorAll('.svc-accordion-item');
 
-function filterServices(cat) {
-  svcItems.forEach(item => {
-    item.classList.toggle('hidden', item.dataset.cat !== cat);
+function filterAccordionCategory(mainCat) {
+  svcAccordionItems.forEach(item => {
+    item.classList.remove('active');
+    if (item.dataset.main === mainCat) {
+      item.classList.remove('hidden');
+    } else {
+      item.classList.add('hidden');
+    }
   });
 }
-filterServices('hair');
 
-svcTabs.forEach(tab => {
+// Main Tab Click
+svcMainTabs.forEach(tab => {
   tab.addEventListener('click', () => {
-    svcTabs.forEach(t => t.classList.remove('active'));
+    svcMainTabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    filterServices(tab.dataset.cat);
+    filterAccordionCategory(tab.dataset.main);
   });
 });
+
+// Accordion Header Click (Toggle self, close others in same category)
+svcAccordionItems.forEach(item => {
+  const header = item.querySelector('.svc-accordion-header');
+  if (!header) return;
+  
+  header.addEventListener('click', () => {
+    const isActive = item.classList.contains('active');
+    const currentMain = item.dataset.main;
+    
+    // Close all items in the same main category
+    svcAccordionItems.forEach(i => {
+      if (i.dataset.main === currentMain) {
+        i.classList.remove('active');
+      }
+    });
+    
+    // If it wasn't active before, open it now (toggle off if it was active)
+    if (!isActive) {
+      item.classList.add('active');
+    }
+  });
+});
+
+// Initial load: show hair category
+filterAccordionCategory('hair');
 
 // ============ MOBILE MENU ============
 const menuToggle = document.getElementById('menuToggle');
 const navLinks = document.getElementById('navLinks');
+const mobileDrawer = document.getElementById('mobileDrawer');
+const navMobilePill = document.getElementById('navMobilePill');
 
 menuToggle.addEventListener('click', () => {
-  navLinks.classList.toggle('active');
+  const isOpen = mobileDrawer.classList.toggle('active');
+  if (navMobilePill) navMobilePill.classList.toggle('drawer-open', isOpen);
   const spans = menuToggle.querySelectorAll('span');
-  if (navLinks.classList.contains('active')) {
+  if (isOpen) {
     spans[0].style.transform = 'rotate(45deg) translate(4px, 4px)';
     spans[1].style.opacity = '0';
     spans[2].style.transform = 'rotate(-45deg) translate(4px, -4px)';
@@ -41,9 +154,10 @@ menuToggle.addEventListener('click', () => {
   }
 });
 
-navLinks.querySelectorAll('a').forEach(link => {
+mobileDrawer.querySelectorAll('a').forEach(link => {
   link.addEventListener('click', () => {
-    navLinks.classList.remove('active');
+    mobileDrawer.classList.remove('active');
+    if (navMobilePill) navMobilePill.classList.remove('drawer-open');
     const spans = menuToggle.querySelectorAll('span');
     spans[0].style.transform = 'none';
     spans[1].style.opacity = '1';
